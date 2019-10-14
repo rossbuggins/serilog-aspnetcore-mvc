@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
+using Serilog.Events;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Serilog.AspNetCore.Mvc
 {
@@ -208,6 +210,22 @@ namespace Serilog.AspNetCore.Mvc
                 if (value.Key != null && value.Value != null)
                 {
                     _logger.LogDebug("Logging to IDiagnosticContext: {name} {value}", value.Key, value.Value);
+
+                    var subProperties = value.Key.Split(".".ToCharArray()[0]);
+
+                    LogEventProperty property = null;
+                    foreach (var _p in subProperties.Reverse())
+                    {
+                        if (property == null)
+                            property = new LogEventProperty(_p, new ScalarValue(value.Value));
+                        else
+                            property = new LogEventProperty(
+                                _p, 
+                                new StructureValue(new List<LogEventProperty>() { property }));
+                    }
+
+                    //How to take the structured value to be a string here?
+
                     _diag.Set(value.Key, value.Value);
                 }
                 else
