@@ -13,3 +13,8 @@ to use call
 mvcBuilder.AddSerilogMvcLogging();
 ```
 
+Project updated to use
+
+- GitFlow
+- GitVersion
+
