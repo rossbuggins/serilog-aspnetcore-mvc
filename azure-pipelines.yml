@@ -29,7 +29,7 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
-    projects: '$(Parameters.projects)'
+    projects: '**/*.csproj'
     arguments: '--configuration $(BuildConfiguration) /p:Version=$(GitVersion.NuGetVersion)'
     versioningScheme: byBuildNumber
 
