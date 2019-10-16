@@ -2,6 +2,9 @@
 
 namespace Serilog.AspNetCore.Mvc
 {
+    /// <summary>
+    /// Supporting functions for collecting information in a dictionary.
+    /// </summary>
     public interface IDictionaryHelper
     {
         IDictionary<string, object> Add(IDictionary<string, object> values, string key, object value);

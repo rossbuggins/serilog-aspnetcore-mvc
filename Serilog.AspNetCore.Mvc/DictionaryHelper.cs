@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace Serilog.AspNetCore.Mvc
 {
+    /// <summary>
+    /// Supporting functions for collecting information in a Dictionary string,object
+    /// </summary>
     public class DictionaryHelper : IDictionaryHelper
     {
         ILogger<DictionaryHelper> _logger;
