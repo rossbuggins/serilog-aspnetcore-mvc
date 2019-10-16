@@ -20,23 +20,18 @@ steps:
   inputs:
     preferBundledVersion: false
 
-- task: NuGetToolInstaller@1
-
-- task: NuGetCommand@2
+- task: DotNetCoreCLI@2
   inputs:
-    restoreSolution: '$(solution)'
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: 'select'
 
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build'
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    projects: '$(Parameters.projects)'
+    arguments: '--configuration $(BuildConfiguration) /p:Version=$(GitVersion.NuGetVersion)'
+    versioningScheme: byBuildNumber
 
 - task: DotNetCoreCLI@2
   inputs:
@@ -51,3 +46,4 @@ steps:
     packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
     nuGetFeedType: 'internal'
     publishVstsFeed: '5b99eb5c-76b1-46af-bf58-43ef9c9f5d10/a9ec5b8b-7823-4189-9465-a9dae329bcd3'
+    versioningScheme: byBuildNumber
