@@ -7,6 +7,7 @@ namespace Serilog.AspNetCore.Mvc
     /// Ross Test Feature
     /// feature 2
     /// feature 3
+    /// version 1.1.0
     /// </summary>
     public interface IDictionaryHelper
     {
