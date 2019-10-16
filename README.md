@@ -18,3 +18,8 @@ Project updated to use
 - GitFlow
 - GitVersion
 
+## GitFlow Install
+choco install GitVersion.Portable
+
+##GitVersion VS2019 Install
+https://marketplace.visualstudio.com/items?itemName=vs-publisher-57624.GitFlowforVisualStudio2019
