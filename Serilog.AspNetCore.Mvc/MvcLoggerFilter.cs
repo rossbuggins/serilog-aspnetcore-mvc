@@ -25,13 +25,67 @@ namespace Serilog.AspNetCore.Mvc
 
         private readonly ILogger<MvcRequestLoggingFilter> _logger;
         private readonly IDiagnosticContext _diag;
+        private readonly IDictionaryHelper _dictionaryHelper;
+
+        public virtual ILogger<MvcRequestLoggingFilter> Logger
+        {
+            get
+            {
+                return _logger;
+            }
+        }
+
+        public virtual IDiagnosticContext DiagnosticContext
+        {
+            get
+            {
+                return _diag;
+            }
+        }
+
+        public virtual IDictionaryHelper DictionaryHelper
+        {
+            get
+            {
+                return _dictionaryHelper;
+            }
+        }
 
         public MvcRequestLoggingFilter(
             IDiagnosticContext diag,
-            ILogger<MvcRequestLoggingFilter> logger)
+            ILogger<MvcRequestLoggingFilter> logger,
+            IDictionaryHelper dictionaryHelper)
         {
+            if (diag == null)
+                throw new ArgumentNullException(nameof(diag));
+
+            if (logger == null)
+                throw new ArgumentNullException(nameof(logger));
+
+            if (dictionaryHelper == null)
+                throw new ArgumentNullException(nameof(dictionaryHelper));
+
             this._logger = logger;
             this._diag = diag;
+            this._dictionaryHelper = dictionaryHelper;
+        }
+
+        /// <summary>
+        /// Overrides the ActionFilterAttribute. Calls the built in log writers, compound and then finishes by writing to
+        /// IDiagnosticContext by calling SetDiagFromValues.
+        /// </summary>
+        /// <param name="context"></param>
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            if (context == null)
+            {
+                Logger.LogDebug("OnActionExecuting parameter context of type ActionExecutingContext is null, skipping Mvc logging.");
+                return;
+            }
+
+            var values = DictionaryHelper.InitializeValueStore();
+            Log(context, values);
+            WriteToDiagnosticsContext(values);
         }
 
         /// <summary>
@@ -49,9 +103,9 @@ namespace Serilog.AspNetCore.Mvc
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            Add(values, Name_HostValue, context.Request.Host.Value);
-            Add(values, Name_HostHost, context.Request.Host.Host);
-            Add(values, Name_HostPort, context.Request.Host.Port);
+            DictionaryHelper.Add(values, Name_HostValue, context.Request.Host.Value);
+            DictionaryHelper.Add(values, Name_HostHost, context.Request.Host.Host);
+            DictionaryHelper.Add(values, Name_HostPort, context.Request.Host.Port);
         }
 
         /// <summary>
@@ -69,7 +123,7 @@ namespace Serilog.AspNetCore.Mvc
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            Add(values, Name_ActionDisplayName, context.ActionDescriptor.DisplayName);
+            DictionaryHelper.Add(values, Name_ActionDisplayName, context.ActionDescriptor.DisplayName);
         }
 
         /// <summary>
@@ -87,43 +141,10 @@ namespace Serilog.AspNetCore.Mvc
             if (ctrlActionDesc == null)
                 throw new ArgumentNullException(nameof(ctrlActionDesc));
 
-            Add(values, Name_ActionControllerName, ctrlActionDesc.ControllerName);
-            Add(values, Name_ActionName, ctrlActionDesc.ActionName);
-            Add(values, Name_ActionControllerNamespace, ctrlActionDesc.ControllerTypeInfo.Namespace);
-            Add(values, Name_Template, ctrlActionDesc.AttributeRouteInfo.Template);
-        }
-
-        /// <summary>
-        /// Adds value into the temporary cache of values, these are then all writen to the IDiagnosticContext when
-        /// OnActionExecuting calls SetDiagFromValues.
-        /// </summary>
-        /// <param name="values"></param>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        protected virtual IDictionary<string, object> Add(
-            IDictionary<string, object> values,
-            string key,
-            object value)
-        {
-            if (values == null)
-                throw new ArgumentNullException(nameof(values));
-
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
-
-            if (value == null)
-                throw new ArgumentNullException(nameof(value));
-
-            if (values.ContainsKey(key))
-            {
-                _logger.LogDebug("Replacing {key} from {existing} to {new} ", key, values[key], value);
-                values[key] = value;
-            }
-            else
-                values.Add(key, value);
-
-            return values;
+            DictionaryHelper.Add(values, Name_ActionControllerName, ctrlActionDesc.ControllerName);
+            DictionaryHelper.Add(values, Name_ActionName, ctrlActionDesc.ActionName);
+            DictionaryHelper.Add(values, Name_ActionControllerNamespace, ctrlActionDesc.ControllerTypeInfo.Namespace);
+            DictionaryHelper.Add(values, Name_Template, ctrlActionDesc.AttributeRouteInfo.Template);
         }
 
         /// <summary>
@@ -147,51 +168,12 @@ namespace Serilog.AspNetCore.Mvc
             if (values == null)
                 throw new ArgumentNullException(nameof(values));
 
-            Concatenate(
+            DictionaryHelper.Concatenate(
                 values,
                 Name_HostValue,
                 Name_Template,
                 Name_TemplateWithHostJoiner,
                 Name_TemplateWithHost);
-        }
-
-        /// <summary>
-        /// Takes the value of 2 previously logged values and joins them into one.
-        /// </summary>
-        /// <param name="values"></param>
-        /// <param name="name1"></param>
-        /// <param name="name2"></param>
-        /// <param name="joinWith"></param>
-        /// <param name="newName"></param>
-        protected virtual void Concatenate(
-            IDictionary<string, object> values,
-            string name1,
-            string name2,
-            string joinWith,
-            string newName)
-        {
-            if (values == null)
-                throw new ArgumentNullException(nameof(values));
-
-            if (name1 == null)
-                throw new ArgumentNullException(nameof(name1));
-
-            if (name2 == null)
-                throw new ArgumentNullException(nameof(name2));
-
-            if (joinWith == null)
-                throw new ArgumentNullException(nameof(joinWith));
-
-            if (newName == null)
-                throw new ArgumentNullException(nameof(newName));
-
-            if (values.ContainsKey(name1) && values.ContainsKey(name2))
-                Add(values,
-                    newName,
-                    values[name1] + joinWith + values[name2]);
-            else
-                _logger.LogDebug("Cannot concatenate {name1} and {name2} as one or more do not exist. ", name1, name2);
-
         }
 
         /// <summary>
@@ -207,24 +189,15 @@ namespace Serilog.AspNetCore.Mvc
             {
                 if (value.Key != null && value.Value != null)
                 {
-                    _logger.LogDebug("Logging to IDiagnosticContext: {name} {value}", value.Key, value.Value);
-                    _diag.Set(value.Key, value.Value);
+                    Logger.LogDebug("Logging to IDiagnosticContext: {name} {value}", value.Key, value.Value);
+                    DiagnosticContext.Set(value.Key, value.Value);
                 }
                 else
-                    _logger.LogDebug(
+                    Logger.LogDebug(
                         "Not Logging to IDiagnosticContext as key and/or value are null, {name} {value}",
                         value.Key ?? string.Empty,
                         value.Value ?? string.Empty);
             }
-        }
-
-        /// <summary>
-        /// Creates a default dictionary for value storage.
-        /// </summary>
-        /// <returns></returns>
-        protected virtual IDictionary<string, object> InitializeValueStore()
-        {
-            return new Dictionary<string, object>();
         }
 
         /// <summary>
@@ -245,7 +218,7 @@ namespace Serilog.AspNetCore.Mvc
             if (context.HttpContext != null)
                 LogHttpContextRequest(values, context.HttpContext);
             else
-                _logger.LogDebug("OnActionExecuting parameter context.HttpContext of type HttpContext is null, skipping Mvc logging LogHttpContextRequest.");
+                Logger.LogDebug("OnActionExecuting parameter context.HttpContext of type HttpContext is null, skipping Mvc logging LogHttpContextRequest.");
 
             if (context.ModelState.IsValid)
             {
@@ -254,10 +227,10 @@ namespace Serilog.AspNetCore.Mvc
                 if (context.ActionDescriptor is ControllerActionDescriptor ctrlActionDesc)
                     LogControllerActionDescriptor(values, ctrlActionDesc);
                 else
-                    _logger.LogDebug("OnActionExecuting parameter context.ActionDescriptor of type ControllerActionDescriptor is null, skipping Mvc logging LogControllerActionDescriptor.");
+                    Logger.LogDebug("OnActionExecuting parameter context.ActionDescriptor of type ControllerActionDescriptor is null, skipping Mvc logging LogControllerActionDescriptor.");
             }
             else
-                _logger.LogDebug("OnActionExecuting parameter context.ModelState.IsValid is false skipping some Mvc logging.");
+                Logger.LogDebug("OnActionExecuting parameter context.ModelState.IsValid is false skipping some Mvc logging.");
         }
 
         /// <summary>
@@ -279,23 +252,7 @@ namespace Serilog.AspNetCore.Mvc
             LogConcatenatedValues(values);
         }
 
-        /// <summary>
-        /// Overrides the ActionFilterAttribute. Calls the built in log writers, compound and then finishes by writing to
-        /// IDiagnosticContext by calling SetDiagFromValues.
-        /// </summary>
-        /// <param name="context"></param>
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            if (context == null)
-            {
-                _logger.LogDebug("OnActionExecuting parameter context of type ActionExecutingContext is null, skipping Mvc logging.");
-                return;
-            }
 
-            var values = InitializeValueStore();
-            Log(context, values);
-            WriteToDiagnosticsContext(values);
-        }
     }
 }
 

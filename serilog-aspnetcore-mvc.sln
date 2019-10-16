@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29318.209
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.AspNetCore.Mvc", "Serilog.AspNetCore.Mvc\Serilog.AspNetCore.Mvc.csproj", "{1E1FA655-4DD2-4D8A-92C7-32CAD8B5B789}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.AspNetCore.Mvc", "Serilog.AspNetCore.Mvc\Serilog.AspNetCore.Mvc.csproj", "{1E1FA655-4DD2-4D8A-92C7-32CAD8B5B789}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{75AE5517-449D-4A34-8553-3E372D9A1A6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.AspNetCore.Mvc.Tests", "tests\Serilog.AspNetCore.Mvc.Tests\Serilog.AspNetCore.Mvc.Tests.csproj", "{61303EB8-D88E-4C32-85B6-CD12C4933411}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +19,16 @@ Global
 		{1E1FA655-4DD2-4D8A-92C7-32CAD8B5B789}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E1FA655-4DD2-4D8A-92C7-32CAD8B5B789}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E1FA655-4DD2-4D8A-92C7-32CAD8B5B789}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61303EB8-D88E-4C32-85B6-CD12C4933411}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61303EB8-D88E-4C32-85B6-CD12C4933411}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61303EB8-D88E-4C32-85B6-CD12C4933411}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61303EB8-D88E-4C32-85B6-CD12C4933411}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{61303EB8-D88E-4C32-85B6-CD12C4933411} = {75AE5517-449D-4A34-8553-3E372D9A1A6F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A4827134-BD4D-4E61-A140-50EAB82D1E89}
