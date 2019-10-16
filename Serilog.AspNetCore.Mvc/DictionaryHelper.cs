@@ -7,7 +7,8 @@ using System.Linq;
 namespace Serilog.AspNetCore.Mvc
 {
     /// <summary>
-    /// Supporting functions for collecting information in a Dictionary string,object
+    /// Supporting functions for collecting information in a Dictionary string,object.
+    /// Test.
     /// </summary>
     public class DictionaryHelper : IDictionaryHelper
     {
