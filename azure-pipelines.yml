@@ -18,6 +18,7 @@ steps:
 - task: gittools.gitversion.gitversion-task.GitVersion@5
   displayName: GitVersion
   inputs:
+    updateAssemblyInfo: true
     preferBundledVersion: false
 
 - task: DotNetCoreCLI@2
