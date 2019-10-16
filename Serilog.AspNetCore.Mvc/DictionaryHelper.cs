@@ -8,6 +8,8 @@ namespace Serilog.AspNetCore.Mvc
 {
     /// <summary>
     /// Supporting functions for collecting information in a Dictionary string,object
+    /// Testing something here.
+    /// Test.
     /// </summary>
     public class DictionaryHelper : IDictionaryHelper
     {
