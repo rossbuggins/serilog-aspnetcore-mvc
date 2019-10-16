@@ -15,7 +15,7 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: gittools.gitversion.gitversion-task.GitVersion@4
+- task: gittools.gitversion.gitversion-task.GitVersion@1
   displayName: GitVersion
   inputs:
     preferBundledVersion: false
@@ -44,6 +44,7 @@ steps:
     packagesToPack: '**/*.csproj'
     versioningScheme: byEnvVar
     versionEnvVar: GitVersion.NuGetVersion
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'push'
