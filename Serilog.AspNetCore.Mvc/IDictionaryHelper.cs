@@ -6,6 +6,7 @@ namespace Serilog.AspNetCore.Mvc
     /// Supporting functions for collecting information in a dictionary.
     /// Ross Test Feature
     /// feature 2
+    /// feature 3
     /// </summary>
     public interface IDictionaryHelper
     {
