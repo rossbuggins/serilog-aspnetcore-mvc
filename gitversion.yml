@@ -7,3 +7,4 @@ branches:
     tag: ''
 ignore:
   sha: []
+merge-message-formats: {}
